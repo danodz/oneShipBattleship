@@ -1,0 +1,38 @@
+<!DOCTYPE html> 
+<html lang="en" dir="ltr"> 
+    <head> 
+        <meta charset="utf-8"> 
+    
+        <title>ChatApp</title> 
+    </head> 
+    <body> 
+        <button onclick="playerReady()" class="ready">button</button>
+        <script src="/socket.io/socket.io.js"></script> 
+        <script> 
+            var player;
+            var socket=io() 
+            // connection with server 
+            socket.on('name', function(msg){ 
+                console.log(msg);
+                player = msg;
+            }); 
+              
+            // message listener from server 
+            socket.on('update', function(msg){ 
+            }); 
+
+            function playerReady(){
+                if(player == "player1")
+                    socket.emit('setBoat', "[[0,0],[0,1],[1,1]]"); 
+                if(player == "player2")
+                    socket.emit('setBoat', "[[5,4],[5,5],[6,5],[6,6]]"); 
+            }
+              
+              
+            // when disconnected from server 
+            socket.on('disconnect', function(){ 
+              console.log('Disconnect from server') 
+            }); 
+        </script> 
+    </body> 
+</html> 
