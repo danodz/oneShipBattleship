@@ -3,36 +3,119 @@
     <head> 
         <meta charset="utf-8"> 
     
-        <title>ChatApp</title> 
+        <title>Battleship</title> 
     </head> 
     <body> 
-        <button onclick="playerReady()" class="ready">button</button>
+        <button onclick="playerReady()" class="ready">Ready</button>
+        <div class="grids">
+            <div class="playerGrid"></div>
+            <div class="enemyGrid"></div>
+        </div>
         <script src="/socket.io/socket.io.js"></script> 
         <script> 
             var player;
             var socket=io() 
-            // connection with server 
             socket.on('name', function(msg){ 
                 console.log(msg);
                 player = msg;
             }); 
-              
-            // message listener from server 
-            socket.on('update', function(msg){ 
-            }); 
-
-            function playerReady(){
-                if(player == "player1")
-                    socket.emit('setBoat', "[[0,0],[0,1],[1,1]]"); 
-                if(player == "player2")
-                    socket.emit('setBoat', "[[5,4],[5,5],[6,5],[6,6]]"); 
-            }
-              
-              
-            // when disconnected from server 
             socket.on('disconnect', function(){ 
               console.log('Disconnect from server') 
             }); 
+              
+            socket.on('enemyUpdate', function(msg){ 
+                gridUpdate(enemyGrid, msg.x, msg.y, msg.value)
+            }); 
+
+            socket.on('playerUpdate', function(msg){ 
+                gridUpdate(playerGrid, msg.x, msg.y, msg.value)
+            }); 
+
+            function gridUpdate(grid, x, y, value){
+                if(value == "boat")
+                {
+                    grid[x][y].style.background = "red";
+                }
+                else if(value == "empty")
+                {
+                    grid[x][y].style.background = "blue";
+                }
+            }
+
+            function playerReady(){
+                let board = [];
+                for(var i=0; i<playerGrid.length; i++){
+                    board[i] = [];
+                    for(var j=0; j<playerGrid[i].length; j++){
+                        if(playerGrid[i][j].dataset.contains == "boat")
+                        {
+                            board[i][j] = "boat"
+                        }
+                        else
+                        {
+                            board[i][j] = "empty"
+                        }
+                    }
+                }
+                console.log(board)
+                
+                socket.emit('setBoard', JSON.stringify(board)); 
+            }
+
+            playerGrid = makeGrid(document.querySelector(".playerGrid"), toggleBoat);
+            enemyGrid = makeGrid(document.querySelector(".enemyGrid"), play);
+
+            function makeGrid(root, clickFn){
+                var grid = [];
+                for(var i=0; i<10; i++){
+                    grid[i] = [];
+                    var row = document.createElement("div");
+                    row.className = "row";
+                    for(var j=0; j<10; j++){
+                        var item = document.createElement("div");
+                        grid[i][j] = item
+                        item.className = "gridItem";
+                        item.dataset.position = [i,j]
+                        item.dataset.contains = "empty";
+                        item.onclick = clickFn
+                        row.appendChild(item);
+                    }
+                    root.appendChild(row);
+                }
+                return grid;
+            }
+
+            function toggleBoat(e){
+                if(e.target.dataset.contains == "empty")
+                {
+                    e.target.dataset.contains = "boat";
+                    e.target.style.background = "black"
+                }
+                else
+                {
+                    e.target.dataset.contains = "empty";
+                    e.target.style.background = "none"
+                }
+            }
+
+            function play(e){
+                socket.emit("play", e.target.dataset.position)
+            }
         </script> 
+        <style>
+            .grids {
+                display: flex;
+                justify-content: space-around;
+            }
+            .row {
+                height: 40px;
+            }
+            .gridItem {
+                  border: 1px solid black;
+                  width: 40px;
+                  height: 40px;
+                  display: inline-block;
+                }
+        </style>
     </body> 
 </html> 
