@@ -36,14 +36,32 @@
                 {
                     grid[x][y].style.background = "red";
                 }
+                else if(value == "siren" || value == "crab")
+                {
+                    grid[x][y].style.background = "red";
+                    fadeIn(grid[x][y].querySelector("."+value))
+                }
                 else if(value == "empty")
                 {
                     grid[x][y].style.background = "blue";
                 }
             }
 
+            function fadeIn(e){
+                setTimeout(()=>{
+                    let opacity = 0;
+                    interval = setInterval(()=>{
+                        e.style.display="block";
+                        e.style.opacity=opacity;
+                        opacity += 0.01;
+                        if(opacity >= 1)
+                            clearInterval(interval);
+                    }, 100);
+                }, 1000);
+            }
+
             function sendMove(e){
-                socket.emit("move", e.target.dataset.position)
+                socket.emit("move", e.currentTarget.dataset.position)
             }
 
             playerGrid = makeGrid(document.querySelector(".playerGrid"), changeTile);
@@ -62,6 +80,17 @@
                         item.dataset.position = [i,j]
                         item.dataset.contains = "empty";
                         item.onclick = clickFn
+
+                        var siren = document.createElement("div");
+                        siren.className = "decoy siren";
+                        siren.innerText = "S";
+                        item.appendChild(siren);
+
+                        var crab = document.createElement("div");
+                        crab.className = "decoy crab";
+                        crab.innerText = "C";
+                        item.appendChild(crab);
+
                         row.appendChild(item);
                     }
                     root.appendChild(row);
@@ -70,15 +99,28 @@
             }
 
             function changeTile(e){
-                if(e.target.dataset.contains == "empty")
+                if(e.currentTarget.dataset.contains == "empty")
                 {
-                    e.target.dataset.contains = "boat";
-                    e.target.style.background = "black"
+                    e.currentTarget.dataset.contains = "boat";
+                    e.currentTarget.style.background = "black"
+                }
+                else if(e.currentTarget.dataset.contains == "boat")
+                {
+                    e.currentTarget.dataset.contains = "siren";
+                    e.currentTarget.style.background = "none"
+                    e.currentTarget.querySelector(".siren").style.display = "block"
+                }
+                else if(e.currentTarget.dataset.contains == "siren")
+                {
+                    e.currentTarget.dataset.contains = "crab";
+                    e.currentTarget.querySelector(".siren").style.display = "none"
+                    e.currentTarget.querySelector(".crab").style.display = "block"
                 }
                 else
                 {
-                    e.target.dataset.contains = "empty";
-                    e.target.style.background = "none"
+                    e.currentTarget.dataset.contains = "empty";
+                    e.currentTarget.querySelector(".crab").style.display = "none"
+                    e.currentTarget.style.background = "none"
                 }
             }
 
@@ -87,14 +129,7 @@
                 for(var i=0; i<playerGrid.length; i++){
                     board[i] = [];
                     for(var j=0; j<playerGrid[i].length; j++){
-                        if(playerGrid[i][j].dataset.contains == "boat")
-                        {
-                            board[i][j] = "boat"
-                        }
-                        else
-                        {
-                            board[i][j] = "empty"
-                        }
+                        board[i][j] = playerGrid[i][j].dataset.contains
                     }
                 }
                 console.log(board)
@@ -111,11 +146,18 @@
                 height: 40px;
             }
             .gridItem {
-                  border: 1px solid black;
-                  width: 40px;
-                  height: 40px;
-                  display: inline-block;
-                }
+                border: 1px solid black;
+                width: 40px;
+                height: 40px;
+                display: inline-block;
+                vertical-align: top;
+            }
+
+            .decoy {
+                text-align: center;
+                font-size: 30px;
+                display: none;
+            }
         </style>
     </body> 
 </html> 
