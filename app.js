@@ -49,18 +49,15 @@ io.on('connection', (socket)=>{
         console.log(player.board);
     }); 
 
-    socket.on("play", (position)=>{
+    socket.on("move", (position)=>{
         let pos = position.split(",");
-        console.log(pos, pos[0], pos[1]);
         let x = parseInt(pos[0]);
         let y = parseInt(pos[1]);
-        console.log(x,y);
         let data = {
             x: x,
             y: y,
             value: player.enemy.board[x][y]
         };
-        console.log(data);
         player.enemy.socket.emit("playerUpdate", data);
         player.socket.emit("enemyUpdate", data);
     })

@@ -6,7 +6,7 @@
         <title>Battleship</title> 
     </head> 
     <body> 
-        <button onclick="playerReady()" class="ready">Ready</button>
+        <button onclick="sendGrid()" class="ready">Ready</button>
         <div class="grids">
             <div class="playerGrid"></div>
             <div class="enemyGrid"></div>
@@ -20,7 +20,7 @@
                 player = msg;
             }); 
             socket.on('disconnect', function(){ 
-              console.log('Disconnect from server') 
+              console.log('Disconnected from server') 
             }); 
               
             socket.on('enemyUpdate', function(msg){ 
@@ -42,28 +42,12 @@
                 }
             }
 
-            function playerReady(){
-                let board = [];
-                for(var i=0; i<playerGrid.length; i++){
-                    board[i] = [];
-                    for(var j=0; j<playerGrid[i].length; j++){
-                        if(playerGrid[i][j].dataset.contains == "boat")
-                        {
-                            board[i][j] = "boat"
-                        }
-                        else
-                        {
-                            board[i][j] = "empty"
-                        }
-                    }
-                }
-                console.log(board)
-                
-                socket.emit('setBoard', JSON.stringify(board)); 
+            function sendMove(e){
+                socket.emit("move", e.target.dataset.position)
             }
 
-            playerGrid = makeGrid(document.querySelector(".playerGrid"), toggleBoat);
-            enemyGrid = makeGrid(document.querySelector(".enemyGrid"), play);
+            playerGrid = makeGrid(document.querySelector(".playerGrid"), changeTile);
+            enemyGrid = makeGrid(document.querySelector(".enemyGrid"), sendMove);
 
             function makeGrid(root, clickFn){
                 var grid = [];
@@ -85,7 +69,7 @@
                 return grid;
             }
 
-            function toggleBoat(e){
+            function changeTile(e){
                 if(e.target.dataset.contains == "empty")
                 {
                     e.target.dataset.contains = "boat";
@@ -98,8 +82,24 @@
                 }
             }
 
-            function play(e){
-                socket.emit("play", e.target.dataset.position)
+            function sendGrid(){
+                let board = [];
+                for(var i=0; i<playerGrid.length; i++){
+                    board[i] = [];
+                    for(var j=0; j<playerGrid[i].length; j++){
+                        if(playerGrid[i][j].dataset.contains == "boat")
+                        {
+                            board[i][j] = "boat"
+                        }
+                        else
+                        {
+                            board[i][j] = "empty"
+                        }
+                    }
+                }
+                console.log(board)
+                
+                socket.emit('setBoard', JSON.stringify(board)); 
             }
         </script> 
         <style>
