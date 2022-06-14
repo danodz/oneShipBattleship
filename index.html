@@ -22,6 +22,8 @@
         <script src="/socket.io/socket.io.js"></script> 
         <script> 
             var player;
+            var gameState = "setup";
+
             var socket=io() 
             socket.on('name', function(msg){ 
                 console.log(msg);
@@ -121,6 +123,9 @@
             }
 
             function changeTile(e){
+                if(gameState != "setup")
+                    return;
+
                 if(e.currentTarget.dataset.contains == "empty")
                 {
                     e.currentTarget.dataset.contains = "boat";
@@ -147,6 +152,9 @@
             }
 
             function sendGrid(){
+                if(gameState != "setup")
+                    return;
+
                 let board = [];
                 for(var i=0; i<playerGrid.length; i++){
                     board[i] = [];
@@ -154,8 +162,8 @@
                         board[i][j] = playerGrid[i][j].dataset.contains
                     }
                 }
-                console.log(board)
                 
+                gameState = "";
                 socket.emit('setBoard', JSON.stringify(board)); 
             }
         </script> 
