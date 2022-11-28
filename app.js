@@ -5,6 +5,9 @@ const http=require('http')
 const port=process.env.PORT||3000 
 var app=express(); 
 var server = http.createServer(app) 
+
+app.use(express.static('client'))
+
 var io=socketIO(server); 
 
 var player1 = {
@@ -21,10 +24,6 @@ var gameState = "setup";
 
 player1.enemy = player2;
 player2.enemy = player1;
-
-app.get("/", (req,res) => {
-    res.send(fs.readFileSync("index.html").toString());
-});
   
 // make connection with user from server side 
 let players = [];

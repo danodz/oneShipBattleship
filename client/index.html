@@ -1,0 +1,56 @@
+<!DOCTYPE html> 
+<html lang="en" dir="ltr"> 
+    <head> 
+        <meta charset="utf-8"> 
+    
+        <title>Battleship</title> 
+        <script src="/socket.io/socket.io.js"></script> 
+        <script src="client.js"></script> 
+    </head> 
+    <body onload="init()"> 
+        <button onclick="sendGrid()" class="ready">Ready</button>
+        <div class="grids">
+            <div class="playerGrid"></div>
+            <div class="enemyGrid"></div>
+        </div>
+        <div class="moveFeedback">
+            <div class="missTxt">It's a miss</div>
+            <div class="hitTxt">
+                It's a hit
+                <div class="decoy siren">On a siren</div>
+                <div class="decoy crab">On a crab</div>
+            </div>
+        </div>
+        <style>
+            .grids {
+                display: flex;
+                justify-content: space-around;
+            }
+            .row {
+                height: 40px;
+            }
+            .gridItem {
+                border: 1px solid black;
+                width: 40px;
+                height: 40px;
+                display: inline-block;
+                vertical-align: top;
+            }
+
+            .decoy {
+                text-align: center;
+                font-size: 30px;
+                display: none;
+            }
+            
+            .moveFeedback{
+                text-align: center;
+                font-size: 50px;
+            }
+
+            .moveFeedback div{
+                display: none;
+            }
+        </style>
+    </body> 
+</html> 
