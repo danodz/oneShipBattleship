@@ -4,6 +4,7 @@
         <meta charset="utf-8"> 
     
         <title>Battleship</title> 
+        <link rel="stylesheet" href="styles.css">
         <script src="/socket.io/socket.io.js"></script> 
         <script src="client.js"></script> 
     </head> 
@@ -21,36 +22,5 @@
                 <div class="decoy crab">On a crab</div>
             </div>
         </div>
-        <style>
-            .grids {
-                display: flex;
-                justify-content: space-around;
-            }
-            .row {
-                height: 40px;
-            }
-            .gridItem {
-                border: 1px solid black;
-                width: 40px;
-                height: 40px;
-                display: inline-block;
-                vertical-align: top;
-            }
-
-            .decoy {
-                text-align: center;
-                font-size: 30px;
-                display: none;
-            }
-            
-            .moveFeedback{
-                text-align: center;
-                font-size: 50px;
-            }
-
-            .moveFeedback div{
-                display: none;
-            }
-        </style>
     </body> 
 </html> 
