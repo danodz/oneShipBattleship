@@ -44,6 +44,11 @@ socket.on("nope", function(){
 });
 
 function gridUpdate(grid, x, y, value){
+    document.querySelector(".moveFeedback .missTxt").style.display="none";
+    document.querySelector(".moveFeedback .hitTxt").style.display="none";
+    document.querySelector(".moveFeedback .hitTxt .mermaid").style.display="none";
+    document.querySelector(".moveFeedback .hitTxt .crab").style.display="none";
+
     if(value == "boat")
     {
         grid[x][y].style.background = "red";
@@ -81,14 +86,16 @@ function tempDisplay(e){
 }
 
 function fadeIn(e){
+    e.style.display="block";
+    e.style.opacity=0;
     setTimeout(()=>{
         let opacity = 0;
         let interval = setInterval(()=>{
-            e.style.display="block";
             e.style.opacity=opacity;
             opacity += 0.01;
-            if(opacity >= 1)
+            if(opacity >= 1){
                 clearInterval(interval);
+            }
         }, 50);
     }, 1000);
 }
