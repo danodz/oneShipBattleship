@@ -27,3 +27,11 @@
 .moveFeedback div{
     display: none;
 }
+
+.playerGrid.locked .gridItem{
+    background: gainsboro;
+}
+
+.hidden{
+    display: none;
+}

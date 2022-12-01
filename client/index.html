@@ -10,6 +10,15 @@
     </head> 
     <body onload="init()"> 
         <button onclick="sendGrid()" class="ready">Ready</button>
+        <div class="connectionStatus">
+            Not connected
+        </div>
+        <div class="gameStatus">
+            Making your board
+        </div>
+        <div class="boardError hidden">
+            BOARD ERROR
+        </div>
         <div class="grids">
             <div class="playerGrid"></div>
             <div class="enemyGrid"></div>

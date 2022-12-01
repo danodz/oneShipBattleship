@@ -1,13 +1,12 @@
-var player;
+var gameStatusTxt;
+var connectionStatusTxt;
 var gameState = "setup";
-
 var socket=io() 
 socket.on('name', function(msg){ 
-    console.log(msg);
-    player = msg;
+    connectionStatusTxt.innerText = msg;
 }); 
 socket.on('disconnect', function(){ 
-  console.log('Disconnected from server') 
+    connectionStatusTxt.innerText = "Disconnected from server";
 }); 
   
 socket.on('enemyUpdate', function(msg){ 
@@ -17,6 +16,22 @@ socket.on('enemyUpdate', function(msg){
 socket.on('playerUpdate', function(msg){ 
     gridUpdate(playerGrid, msg.x, msg.y, msg.value)
 }); 
+
+socket.on('boardError', function(){ 
+    document.querySelector(".boardError").classList.remove("hidden");
+}); 
+
+socket.on('boardOk', function(){ 
+    document.querySelector(".playerGrid").classList.add("locked");
+    document.querySelector(".boardError").classList.add("hidden");
+    document.querySelector(".ready").classList.add("hidden");
+    gameState = "";
+}); 
+
+socket.on("setGameState", function(msg){
+    gameState = msg;
+    gameStatusTxt.innerText = msg;
+});
 
 function gridUpdate(grid, x, y, value){
     if(value == "boat")
@@ -68,6 +83,9 @@ function sendMove(e){
 function init(){
     playerGrid = makeGrid(document.querySelector(".playerGrid"), changeTile);
     enemyGrid = makeGrid(document.querySelector(".enemyGrid"), sendMove);
+    gameStatusTxt = document.querySelector(".gameStatus");
+    connectionStatusTxt = document.querySelector(".connectionStatus");
+
 }
 
 function makeGrid(root, clickFn){
@@ -141,8 +159,6 @@ function sendGrid(){
             board[i][j] = playerGrid[i][j].dataset.contains
         }
     }
-    
-    gameState = "";
     socket.emit('setBoard', JSON.stringify(board)); 
 }
 

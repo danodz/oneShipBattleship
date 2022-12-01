@@ -21,6 +21,11 @@ var player2 = {
 var noPlayer2 = true;
 
 var gameState = "setup";
+function setGameState(value){
+    gameState = value;
+    player1.socket.emit("setGameState", value)
+    player2.socket.emit("setGameState", value)
+}
 
 player1.enemy = player2;
 player2.enemy = player1;
@@ -48,10 +53,65 @@ io.on('connection', (socket)=>{
     socket.on('setBoard', (msg)=>{ 
         if(gameState == "setup")
         {
-            player.board = JSON.parse(msg);
-            if(player.enemy.board)
+            var board = JSON.parse(msg).map(function(row){
+                    return row.map(function(tile){
+                        return {type: tile, played: false}
+                    })
+                });
+            var boardIsValid = true;
+            var boatLength = 0;
+
+            function validateTile(i,j){
+                function validate(x,y){
+                    if(board[x] && board[x][y]){
+                        if(board[x][y].type == "boat" && !board[x][y].valid){
+                            validateTile(x, y);
+                        }
+                    }
+                }
+                board[i][j].valid = true;
+                boatLength += 1;
+                validate(i-1,j);
+                validate(i+1,j);
+                validate(i,j+1);
+                validate(i,j-1);
+            }
+
+            let toBreak = false;
+            for(var i=0; i<board.length; i++)
             {
-                gameState = "player1"
+                for(var j=0; j<board[i].length; j++)
+                {
+                    if(board[i][j].type == "boat"){
+                        validateTile(i,j);
+                        if(!board.every(function(row){
+                            return row.every(function(tile){
+                                return tile.type != "boat" || tile.valid;
+                            });
+                        })){
+                            boardIsValid = false;
+                        }
+                        toBreak = true;
+                        break;
+                    }
+                }
+                if(toBreak) break;
+            }
+
+            console.log(boatLength);
+
+            if(boardIsValid && boatLength >= 2 && boatLength <= 10)
+            {
+                player.board = board;
+                if(player.enemy.board)
+                {
+                    setGameState("player1");
+                }
+                socket.emit("boardOk");
+            }
+            else
+            {
+                socket.emit("boardError");
             }
         }
     }); 
@@ -62,14 +122,25 @@ io.on('connection', (socket)=>{
             let pos = position.split(",");
             let x = parseInt(pos[0]);
             let y = parseInt(pos[1]);
+            let tile = player.enemy.board[x][y]
+            if(tile.played)
+                return;
+            tile.played = true;
             let data = {
                 x: x,
                 y: y,
-                value: player.enemy.board[x][y]
+                value: tile.type
             };
+
+            let won = player.enemy.board.every(function(row) {
+                return row.every(function(tile){
+                    return tile.type != "boat" || tile.played;
+                })
+            })
+
             player.enemy.socket.emit("playerUpdate", data);
             player.socket.emit("enemyUpdate", data);
-            gameState = player.enemy.name;
+            setGameState(player.enemy.name);
         }
     })
     
