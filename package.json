@@ -1,0 +1,12 @@
+{
+  "name": "oneShipBattleship",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "git@github.com:danodz/oneShipBattleship.git",
+  "author": "Erwan LeBlanc <erwan.bourdeau@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "4",
+    "socket.io": "^4.5.4"
+  }
+}
