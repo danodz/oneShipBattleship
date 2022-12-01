@@ -33,6 +33,16 @@ socket.on("setGameState", function(msg){
     gameStatusTxt.innerText = msg;
 });
 
+socket.on("gameOver", function(msg){
+    const node = document.querySelector(".gameOver");
+    node.classList.remove("hidden");
+    node.innerText = msg + " Won!";
+});
+
+socket.on("nope", function(){
+    document.body.innerHTML = "NOPE!";
+});
+
 function gridUpdate(grid, x, y, value){
     if(value == "boat")
     {
@@ -40,7 +50,7 @@ function gridUpdate(grid, x, y, value){
 
         tempDisplay(document.querySelector(".moveFeedback .hitTxt"));
     }
-    else if(value == "siren" || value == "crab")
+    else if(value == "mermaid" || value == "crab")
     {
         grid[x][y].style.background = "red";
         fadeIn(grid[x][y].querySelector("."+value))
@@ -56,9 +66,16 @@ function gridUpdate(grid, x, y, value){
     }
 }
 
+var displaying;
+var timeout;
 function tempDisplay(e){
+    if(displaying){
+        displaying.style.display = "none";
+        clearTimeout(timeout);
+    }
     e.style.display="block";
-    setTimeout(()=>{
+    displaying = e;
+    timeout = setTimeout(()=>{
         e.style.display = "none";
     }, 5000);
 }
@@ -102,10 +119,10 @@ function makeGrid(root, clickFn){
             item.dataset.contains = "empty";
             item.onclick = clickFn
 
-            var siren = document.createElement("div");
-            siren.className = "decoy siren";
-            siren.innerText = "S";
-            item.appendChild(siren);
+            var mermaid = document.createElement("div");
+            mermaid.className = "decoy mermaid";
+            mermaid.innerText = "S";
+            item.appendChild(mermaid);
 
             var crab = document.createElement("div");
             crab.className = "decoy crab";
@@ -126,25 +143,24 @@ function changeTile(e){
     if(e.currentTarget.dataset.contains == "empty")
     {
         e.currentTarget.dataset.contains = "boat";
-        e.currentTarget.style.background = "black"
+        e.currentTarget.classList.add("boat");
     }
     else if(e.currentTarget.dataset.contains == "boat")
     {
-        e.currentTarget.dataset.contains = "siren";
-        e.currentTarget.style.background = "none"
-        e.currentTarget.querySelector(".siren").style.display = "block"
+        e.currentTarget.dataset.contains = "mermaid";
+        e.currentTarget.classList.remove("boat");
+        e.currentTarget.querySelector(".mermaid").style.display = "block"
     }
-    else if(e.currentTarget.dataset.contains == "siren")
+    else if(e.currentTarget.dataset.contains == "mermaid")
     {
         e.currentTarget.dataset.contains = "crab";
-        e.currentTarget.querySelector(".siren").style.display = "none"
+        e.currentTarget.querySelector(".mermaid").style.display = "none"
         e.currentTarget.querySelector(".crab").style.display = "block"
     }
     else
     {
         e.currentTarget.dataset.contains = "empty";
         e.currentTarget.querySelector(".crab").style.display = "none"
-        e.currentTarget.style.background = "none"
     }
 }
 
@@ -162,3 +178,15 @@ function sendGrid(){
     socket.emit('setBoard', JSON.stringify(board)); 
 }
 
+function reset(){
+    socket.emit("reset");
+}
+
+socket.on("reset",function(){
+    document.querySelector(".playerGrid").innerHTML = "";
+    document.querySelector(".enemyGrid").innerHTML = "";
+    document.querySelector(".playerGrid").classList.remove("locked");
+    document.querySelector(".ready").classList.remove("hidden");
+    document.querySelector(".gameOver").classList.add("hidden");
+    init();
+});

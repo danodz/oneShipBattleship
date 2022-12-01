@@ -44,6 +44,11 @@ io.on('connection', (socket)=>{
         player = player2;
         noPlayer2 = false;
     }
+    else
+    {
+        socket.emit("nope");
+        return;
+    }
     player.socket = socket;
     console.log(player.name + " connected"); 
     
@@ -98,8 +103,6 @@ io.on('connection', (socket)=>{
                 if(toBreak) break;
             }
 
-            console.log(boatLength);
-
             if(boardIsValid && boatLength >= 2 && boatLength <= 10)
             {
                 player.board = board;
@@ -137,15 +140,23 @@ io.on('connection', (socket)=>{
                     return tile.type != "boat" || tile.played;
                 })
             })
-
+            if(won){
+                setGameState("gameOver");
+                player.enemy.socket.emit("gameOver", player.name);
+                player.socket.emit("gameOver", player.name);
+            } else {
+                setGameState(player.enemy.name);
+            }
             player.enemy.socket.emit("playerUpdate", data);
             player.socket.emit("enemyUpdate", data);
-            setGameState(player.enemy.name);
         }
     })
+
+    socket.on("reset", reset);
     
   // when server disconnects from user 
     socket.on('disconnect', ()=>{ 
+        reset();
         if(player.name == "player1")
         {
            noPlayer1 = true;
@@ -156,5 +167,13 @@ io.on('connection', (socket)=>{
         }
     }); 
 }); 
+
+function reset(){
+    setGameState("setup");
+    player1.board = null;
+    player2.board = null;
+    player1.socket.emit("reset");
+    player2.socket.emit("reset");
+}
   
 server.listen(port); 

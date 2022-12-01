@@ -9,16 +9,20 @@
         <script src="client.js"></script> 
     </head> 
     <body onload="init()"> 
+        <button onclick="reset()" class="reset">Reset</button>
+        <div class="status">
+            <div class="connectionStatus">
+                Not connected
+            </div>
+            <div class="gameStatus">
+                Making your board
+            </div>
+        </div>
         <button onclick="sendGrid()" class="ready">Ready</button>
-        <div class="connectionStatus">
-            Not connected
-        </div>
-        <div class="gameStatus">
-            Making your board
-        </div>
         <div class="boardError hidden">
             BOARD ERROR
         </div>
+        <div class="gameOver hidden"></div>
         <div class="grids">
             <div class="playerGrid"></div>
             <div class="enemyGrid"></div>
@@ -27,7 +31,7 @@
             <div class="missTxt">It's a miss</div>
             <div class="hitTxt">
                 It's a hit
-                <div class="decoy siren">On a siren</div>
+                <div class="decoy mermaid">On a mermaid</div>
                 <div class="decoy crab">On a crab</div>
             </div>
         </div>
